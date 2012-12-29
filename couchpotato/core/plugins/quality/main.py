@@ -18,11 +18,11 @@ log = CPLog(__name__)
 class QualityPlugin(Plugin):
 
     qualities = [
-        {'identifier': '3dbd50', 'hd': True, 'size': (23000, 60000), 'label': '3D BR-Disk', 'alternative': [], 'allow': ['1080p','3d1080p'], 'ext':[], 'tags': ['2d+3d', '3d']},
+        {'identifier': '3dbd50', 'hd': True, 'size': (23000, 60000), 'label': '3D BR-Disk', 'alternative': [], 'allow': ['1080p','3d1080p','bd50'], 'ext':[], 'tags': ['2d+3d', '3d+2d', '3d']},
         {'identifier': 'bd50', 'hd': True, 'size': (15000, 60000), 'label': 'BR-Disk', 'alternative': ['bd25'], 'allow': ['1080p'], 'ext':[], 'tags': ['bdmv', 'certificate', ('complete', 'bluray')]},
-        {'identifier': '3d1080p', 'hd': True, 'size': (5000, 20000), 'label': '3D 1080P', 'width': 1920, 'height': 1080, 'alternative': [], 'allow': ['1080p'], 'ext':['mkv', 'm2ts'], 'tags': [('1080p', 'm2ts'),('1080p', '3d'), ('1080p', 'hsbs'), ('1080p', 'sbs'), ('1080p', 'half')]},
+        {'identifier': '3d1080p', 'hd': True, 'size': (5000, 20000), 'label': '3D 1080P', 'width': 1920, 'height': 1080, 'alternative': [], 'allow': ['1080p'], 'ext':['mkv', 'm2ts'], 'tags': [('1080p', 'm2ts'),('1080p', '3d'), ('1080p', 'hsbs'), ('1080p', 'sbs'), ('1080p', 'hou'), ('1080p', 'ou')]},
         {'identifier': '1080p', 'hd': True, 'size': (5000, 20000), 'label': '1080P', 'width': 1920, 'height': 1080, 'alternative': [], 'allow': [], 'ext':['mkv', 'm2ts'], 'tags': ['m2ts']},
-        {'identifier': '3d720p', 'hd': True, 'size': (3500, 10000), 'label': '3D 720P', 'width': 1280, 'height': 720, 'alternative': [], 'allow': ['720p'], 'ext':['mkv', 'ts'], 'tags': [('720p', 'm2ts'), ('720p', '3d'), ('720p', 'hsbs'), ('720p', 'sbs'), ('720p', 'half')]},
+        {'identifier': '3d720p', 'hd': True, 'size': (3500, 10000), 'label': '3D 720P', 'width': 1280, 'height': 720, 'alternative': [], 'allow': ['720p'], 'ext':['mkv', 'ts'], 'tags': [('720p', 'm2ts'), ('720p', '3d'), ('720p', 'hsbs'), ('720p', 'sbs'), ('720p', 'hou'), ('720p', 'ou')]},
         {'identifier': '720p', 'hd': True, 'size': (3500, 10000), 'label': '720P', 'width': 1280, 'height': 720, 'alternative': [], 'allow': [], 'ext':['mkv', 'ts']},
         {'identifier': 'brrip', 'hd': True, 'size': (700, 7000), 'label': 'BR-Rip', 'alternative': ['bdrip'], 'allow': ['720p'], 'ext':['avi']},
         {'identifier': 'dvdr', 'size': (3000, 10000), 'label': 'DVD-R', 'alternative': [], 'allow': [], 'ext':['iso', 'img'], 'tags': ['pal', 'ntsc', 'video_ts', 'audio_ts']},
@@ -240,20 +240,20 @@ class QualityPlugin(Plugin):
                 dbqual = db.query(Quality).filter_by(identifier = quality.get('identifier')).first()
 
                 # Check tags
-                if quality['identifier'] in words and (size >= dbqual.size_min and size <= dbqual.size_max):
+                if quality['identifier'] in words and ((size >= dbqual.size_min and size <= dbqual.size_max) if size > 0 else True):
                     log.debug('Found via identifier "%s" in %s', (quality['identifier'], cur_file))
                     return self.setCache(hash, quality)
 
-                if list(set(quality.get('alternative', [])) & set(words)) and (size >= dbqual.size_min and size <= dbqual.size_max):
+                if list(set(quality.get('alternative', [])) & set(words)) and ((size >= dbqual.size_min and size <= dbqual.size_max) if size > 0 else True):
                     log.debug('Found %s via alt %s in %s', (quality['identifier'], quality.get('alternative'), cur_file))
                     return self.setCache(hash, quality)
 
                 for tag in quality.get('tags', []):
-                    if isinstance(tag, tuple) and '.'.join(tag) in '.'.join(words) and (size >= dbqual.size_min and size <= dbqual.size_max):
+                    if isinstance(tag, tuple) and '.'.join(tag) in '.'.join(words) and ((size >= dbqual.size_min and size <= dbqual.size_max) if size > 0 else True):
                         log.debug('Found %s via tag %s in %s', (quality['identifier'], quality.get('tags'), cur_file))
                         return self.setCache(hash, quality)
 
-                if list(set(quality.get('tags', [])) & set(words)) and (size >= dbqual.size_min and size <= dbqual.size_max):
+                if list(set(quality.get('tags', [])) & set(words)) and ((size >= dbqual.size_min and size <= dbqual.size_max) if size > 0 else True):
                     log.debug('Found %s via tag %s in %s', (quality['identifier'], quality.get('tags'), cur_file))
                     return self.setCache(hash, quality)
 

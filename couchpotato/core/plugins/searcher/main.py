@@ -400,10 +400,13 @@ class Searcher(Plugin):
             if list(set(nzb_words) & set(quality['alternative'])):
                 found[quality['identifier']] = True
 
-        # Try guessing via quality tags
-        guess = fireEvent('quality.guess', [nzb.get('name')], single = True)
-        if guess:
-            found[guess['identifier']] = True
+            # Try guessing via quality tags
+            for tag in quality.get('tags', []):
+                if isinstance(tag, tuple) and '.'.join(tag) in '.'.join(nzb_words):
+                    found[quality['identifier']] = True
+
+            if list(set(quality.get('tags', [])) & set(nzb_words)):
+                found[quality['identifier']] = True
 
         # Hack for older movies that don't contain quality tag
         year_name = fireEvent('scanner.name_year', name, single = True)
@@ -455,12 +458,15 @@ class Searcher(Plugin):
         try: check_names.append(max(check_name.split('['), key = len))
         except: pass
 
+        log.info2('check_name: %s, movie_name: %s', (check_name, movie_name))
+
         for check_name in list(set(check_names)):
             check_movie = fireEvent('scanner.name_year', check_name, single = True)
 
             try:
                 check_words = filter(None, re.split('\W+', check_movie.get('name', '')))
                 movie_words = filter(None, re.split('\W+', simplifyString(movie_name)))
+                log.info2('check_words: %s, movie_words: %s', (check_words, movie_words))
 
                 if len(check_words) > 0 and len(movie_words) > 0 and len(list(set(check_words) - set(movie_words))) == 0:
                     return True

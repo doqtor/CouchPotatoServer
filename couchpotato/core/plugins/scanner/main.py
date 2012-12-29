@@ -74,7 +74,7 @@ class Scanner(Plugin):
         'hdtv': ['hdtv']
     }
 
-    clean = '[ _\,\.\(\)\[\]\-](3d|sbs|hsbs|ou|french|swedisch|danish|dutch|swesub|spanish|german|ac3|dts|custom|dc|divx|divx5|dsr|dsrip|dvd|dvdr|dvdrip|dvdscr|dvdscreener|screener|dvdivx|cam|fragment|fs|hdtv|hdrip|hdtvrip|internal|limited|multisubs|ntsc|ogg|ogm|pal|pdtv|proper|repack|rerip|retail|r3|r5|bd5|se|svcd|read.nfo|nfofix|unrated|ws|telesync|ts|telecine|tc|brrip|bdrip|video_ts|audio_ts|480p|480i|576p|576i|720p|720i|810p|810i|1080p|1080i|hrhd|hrhdtv|hddvd|bluray|x264|h264|xvid|xvidvd|xxx|www.www|cd[1-9]|\[.*\])([ _\,\.\(\)\[\]\-]|$)'
+    clean = '[ _\,\.\(\)\[\]\-](2d|3d|2d\+3d|3d\+2d|sbs|hsbs|ou|hou|french|swedisch|danish|dutch|swesub|spanish|german|ac3|dts|custom|dc|divx|divx5|dsr|dsrip|dvd|dvdr|dvdrip|dvdscr|dvdscreener|screener|dvdivx|cam|fragment|fs|hdtv|hdrip|hdtvrip|internal|limited|multisubs|ntsc|ogg|ogm|pal|pdtv|proper|repack|rerip|retail|r3|r5|bd5|se|svcd|read.nfo|nfofix|unrated|ws|telesync|ts|telecine|tc|brrip|bdrip|video_ts|audio_ts|480p|480i|576p|576i|720p|720i|810p|810i|1080p|1080i|hrhd|hrhdtv|hddvd|bluray|x264|h264|xvid|xvidvd|xxx|www.www|cd[1-9]|\[.*\])([ _\,\.\(\)\[\]\-]|$)'
     multipart_regex = [
         '[ _\.-]+cd[ _\.-]*([0-9a-d]+)', #*cd1
         '[ _\.-]+dvd[ _\.-]*([0-9a-d]+)', #*dvd1
@@ -799,6 +799,7 @@ class Scanner(Plugin):
         # Backup to simple
         cleaned = ' '.join(re.split('\W+', simplifyString(release_name)))
         cleaned = re.sub(self.clean, ' ', cleaned)
+        log.debug('cleaned release name: %s', cleaned)
         year = self.findYear(cleaned)
         cp_guess = {}
 
