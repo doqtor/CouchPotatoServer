@@ -31,7 +31,7 @@ class QualityPlugin(Plugin):
         {'identifier': 'cam', 'size': (600, 1000), 'label': 'Cam', 'alternative': ['camrip', 'hdcam'], 'allow': [], 'ext':['avi', 'mpg', 'mpeg']}
     ]
     pre_releases = ['cam', 'ts', 'tc', 'r5', 'scr']
-    tags_3d = ['3d', 'hsbs', ('half', 'sbs'), ('full', 'sbs')]
+    tags_3d = ['3d', '2d\+3d', '3d\+2d', 'hsbs', ('half', 'sbs'), ('full', 'sbs'), 'ou', 'hou', ('half', 'ou'), ('full', 'ou')]
 
     def __init__(self):
         addEvent('quality.all', self.all)
