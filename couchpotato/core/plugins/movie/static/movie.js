@@ -422,7 +422,7 @@ var ReleaseAction = new Class({
 			self.movie.data.releases.sortBy('-info.score').each(function(release){
 
 				var status = Status.get(release.status_id),
-					quality = Quality.getProfile(release.quality_id) || {},
+					quality = Quality.getQuality(release.quality_id) || {},
 					info = release.info;
 				release.status = status;
 
