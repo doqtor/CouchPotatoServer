@@ -11,6 +11,7 @@ from subliminal.videos import Video
 import enzyme
 import os
 import re
+import threading
 import time
 import traceback
 
@@ -23,7 +24,7 @@ class Scanner(Plugin):
         'media': 314572800, # 300MB
         'trailer': 1048576, # 1MB
     }
-    ignored_in_path = ['extracting', '_unpack', '_failed_', '_unknown_', '_exists_', '_failed_remove_', '_failed_rename_', '.appledouble', '.appledb', '.appledesktop', os.path.sep + '._', '.ds_store', 'cp.cpnfo'] #unpacking, smb-crap, hidden files
+    ignored_in_path = [os.path.sep + 'extracted' + os.path.sep, 'extracting', '_unpack', '_failed_', '_unknown_', '_exists_', '_failed_remove_', '_failed_rename_', '.appledouble', '.appledb', '.appledesktop', os.path.sep + '._', '.ds_store', 'cp.cpnfo'] #unpacking, smb-crap, hidden files
     ignore_names = ['extract', 'extracting', 'extracted', 'movie', 'movies', 'film', 'films', 'download', 'downloads', 'video_ts', 'audio_ts', 'bdmv', 'certificate']
     extensions = {
         'movie': ['mkv', 'wmv', 'avi', 'mpg', 'mpeg', 'mp4', 'm2ts', 'iso', 'img', 'mdf', 'ts', 'm4v'],
@@ -89,7 +90,7 @@ class Scanner(Plugin):
         '()([ab])(\.....?)$' #*a.mkv
     ]
 
-    cp_imdb = '(\.cp\((?P<id>tt[0-9{7}]+)\))'
+    cp_imdb = '(.cp.(?P<id>tt[0-9{7}]+).)'
 
     def __init__(self):
 
@@ -341,7 +342,7 @@ class Scanner(Plugin):
                 group['files']['movie'] = self.getMediaFiles(group['unsorted_files'])
 
             if len(group['files']['movie']) == 0:
-                log.error('Couldn\t find any movie files for %s', identifier)
+                log.error('Couldn\'t find any movie files for %s', identifier)
                 continue
 
             log.debug('Getting metadata for %s', identifier)
@@ -387,6 +388,11 @@ class Scanner(Plugin):
             # Notify parent & progress on something found
             if on_found:
                 on_found(group, total_found, total_found - len(processed_movies))
+
+            # Wait for all the async events calm down a bit
+            while threading.activeCount() > 100 and not self.shuttingDown():
+                log.debug('Too many threads active, waiting a few seconds')
+                time.sleep(10)
 
         if len(processed_movies) > 0:
             log.info('Found %s movies in the folder %s', (len(processed_movies), folder))

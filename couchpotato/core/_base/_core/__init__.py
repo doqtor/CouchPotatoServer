@@ -24,18 +24,20 @@ config = [{
                     'type': 'password',
                 },
                 {
-                    'name': 'host',
-                    'advanced': True,
-                    'default': '0.0.0.0',
-                    'hidden': True,
-                    'label': 'IP',
-                    'description': 'Host that I should listen to. "0.0.0.0" listens to all ips.',
-                },
-                {
                     'name': 'port',
                     'default': 5050,
                     'type': 'int',
                     'description': 'The port I should listen to.',
+                },
+                {
+                    'name': 'ssl_cert',
+                    'description': 'Path to SSL server.crt',
+                    'advanced': True,
+                },
+                {
+                    'name': 'ssl_key',
+                    'description': 'Path to SSL server.key',
+                    'advanced': True,
                 },
                 {
                     'name': 'launch_browser',
@@ -68,7 +70,7 @@ config = [{
                     'name': 'development',
                     'default': 0,
                     'type': 'bool',
-                    'description': 'Disables some checks/downloads for faster reloading.',
+                    'description': 'Enable this if you\'re developing, and NOT in any other case, thanks.',
                 },
                 {
                     'name': 'data_dir',

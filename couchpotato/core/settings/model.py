@@ -45,7 +45,7 @@ class Movie(Entity):
     The files belonging to the movie object are global for the whole movie
     such as trailers, nfo, thumbnails"""
 
-    last_edit = Field(Integer, default = lambda: int(time.time()))
+    last_edit = Field(Integer, default = lambda: int(time.time()), index = True)
 
     library = ManyToOne('Library', cascade = 'delete, delete-orphan', single_parent = True)
     status = ManyToOne('Status')
@@ -76,7 +76,7 @@ class LibraryTitle(Entity):
 
     title = Field(Unicode)
     simple_title = Field(Unicode, index = True)
-    default = Field(Boolean, index = True)
+    default = Field(Boolean, default = False, index = True)
 
     language = OneToMany('Language')
     libraries = ManyToOne('Library')
@@ -95,6 +95,7 @@ class Release(Entity):
     """Logically groups all files that belong to a certain release, such as
     parts of a movie, subtitles."""
 
+    last_edit = Field(Integer, default = lambda: int(time.time()), index = True)
     identifier = Field(String(100), index = True)
 
     movie = ManyToOne('Movie')
@@ -145,7 +146,7 @@ class Quality(Entity):
 
     identifier = Field(String(20), unique = True)
     label = Field(Unicode(20))
-    order = Field(Integer, index = True)
+    order = Field(Integer, default = 0, index = True)
 
     size_min = Field(Integer)
     size_max = Field(Integer)
@@ -159,22 +160,28 @@ class Profile(Entity):
     using_options(order_by = 'order')
 
     label = Field(Unicode(50))
-    order = Field(Integer, index = True)
-    core = Field(Boolean)
-    hide = Field(Boolean)
+    order = Field(Integer, default = 0, index = True)
+    core = Field(Boolean, default = False)
+    hide = Field(Boolean, default = False)
 
     movie = OneToMany('Movie')
     types = OneToMany('ProfileType', cascade = 'all, delete-orphan')
 
+    def to_dict(self, deep = {}, exclude = []):
+        orig_dict = super(Profile, self).to_dict(deep = deep, exclude = exclude)
+        orig_dict['core'] = orig_dict.get('core') or False
+        orig_dict['hide'] = orig_dict.get('hide') or False
+
+        return orig_dict
 
 class ProfileType(Entity):
     """"""
     using_options(order_by = 'order')
 
-    order = Field(Integer, index = True)
-    finish = Field(Boolean)
+    order = Field(Integer, default = 0, index = True)
+    finish = Field(Boolean, default = True)
     threed = Field(Boolean)
-    wait_for = Field(Integer)
+    wait_for = Field(Integer, default = 0)
 
     quality = ManyToOne('Quality')
     profile = ManyToOne('Profile')
@@ -185,7 +192,7 @@ class File(Entity):
 
     path = Field(Unicode(255), nullable = False, unique = True)
     part = Field(Integer, default = 1)
-    available = Field(Boolean)
+    available = Field(Boolean, default = True)
 
     type = ManyToOne('FileType')
     properties = OneToMany('FileProperty')

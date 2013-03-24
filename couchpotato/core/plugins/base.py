@@ -64,7 +64,7 @@ class Plugin(object):
             for f in glob.glob(os.path.join(self.plugin_path, 'static', '*')):
                 ext = getExt(f)
                 if ext in ['js', 'css']:
-                    fireEvent('register_%s' % ('script' if ext in 'js' else 'style'), path + os.path.basename(f))
+                    fireEvent('register_%s' % ('script' if ext in 'js' else 'style'), path + os.path.basename(f), f)
 
     def showStatic(self, filename):
         d = os.path.join(self.plugin_path, 'static')
@@ -78,7 +78,7 @@ class Plugin(object):
         self.makeDir(os.path.dirname(path))
 
         try:
-            f = open(path, 'w' if not binary else 'wb')
+            f = open(path, 'w+' if not binary else 'w+b')
             f.write(content)
             f.close()
             os.chmod(path, Env.getPermission('file'))
@@ -98,6 +98,7 @@ class Plugin(object):
 
     # http request
     def urlopen(self, url, timeout = 30, params = None, headers = None, opener = None, multipart = False, show_error = True):
+        url = ss(url)
 
         if not headers: headers = {}
         if not params: params = {}
@@ -129,8 +130,11 @@ class Plugin(object):
                 log.info('Opening multipart url: %s, params: %s', (url, [x for x in params.iterkeys()] if isinstance(params, dict) else 'with data'))
                 request = urllib2.Request(url, params, headers)
 
-                cookies = cookielib.CookieJar()
-                opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookies), MultipartPostHandler)
+                if opener:
+                    opener.add_handler(MultipartPostHandler())
+                else:
+                    cookies = cookielib.CookieJar()
+                    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookies), MultipartPostHandler)
 
                 response = opener.open(request, timeout = timeout)
             else:
@@ -236,7 +240,6 @@ class Plugin(object):
                     del kwargs['cache_timeout']
 
                 data = self.urlopen(url, **kwargs)
-
                 if data:
                     self.setCache(cache_key, data, timeout = cache_timeout)
                 return data
