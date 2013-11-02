@@ -156,9 +156,8 @@ class TransmissionRPC(object):
         if username and password:
             password_manager = urllib2.HTTPPasswordMgrWithDefaultRealm()
             password_manager.add_password(realm = None, uri = self.url, user = username, passwd = password)
-            opener = urllib2.build_opener(urllib2.HTTPBasicAuthHandler(password_manager), urllib2.HTTPDigestAuthHandler(password_manager))
-            opener.addheaders = [('User-agent', 'couchpotato-transmission-client/1.0')]
-            urllib2.install_opener(opener)
+            self.http_opener = urllib2.build_opener(urllib2.HTTPBasicAuthHandler(password_manager), urllib2.HTTPDigestAuthHandler(password_manager))
+            self.http_opener.addheaders = [('User-agent', 'couchpotato-transmission-client/1.0')]
         elif username or password:
             log.debug('User or password missing, not using authentication.')
         self.session = self.get_session()
@@ -168,7 +167,7 @@ class TransmissionRPC(object):
         headers = {'x-transmission-session-id': str(self.session_id)}
         request = urllib2.Request(self.url, json.dumps(ojson).encode('utf-8'), headers)
         try:
-            open_request = urllib2.urlopen(request)
+            open_request = self.http_opener.open(request)
             response = json.loads(open_request.read())
             log.debug('request: %s', json.dumps(ojson))
             log.debug('response: %s', json.dumps(response))
